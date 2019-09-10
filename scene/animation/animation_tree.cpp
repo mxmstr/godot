@@ -865,6 +865,9 @@ void AnimationTree::_process_graph(float p_delta) {
 					continue; //may happen should not
 				}
 
+				if (!a->track_is_enabled(i))
+					continue; // do nothing if the track is disabled
+
 				track->root_motion = root_motion_track == path;
 
 				ERR_CONTINUE(!state.track_map.has(path));
