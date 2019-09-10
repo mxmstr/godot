@@ -200,7 +200,7 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *sm, c
 
 	//build open list
 	for (int i = 0; i < sm->transitions.size(); i++) {
-		if (sm->transitions[i].from == current) {
+		if (sm->transitions[i].from == current && !sm->transitions[i].transition->is_disabled()) {
 			open_list.push_back(i);
 			float cost = sm->states[sm->transitions[i].to].position.distance_to(current_pos);
 			cost *= sm->transitions[i].transition->get_priority();
@@ -242,7 +242,9 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *sm, c
 		StringName transition = sm->transitions[least_cost_transition->get()].to;
 
 		for (int i = 0; i < sm->transitions.size(); i++) {
-			if (sm->transitions[i].from != transition || sm->transitions[i].to == transition_prev) {
+			if (sm->transitions[i].from != transition || 
+				sm->transitions[i].to == transition_prev ||
+				sm->transitions[i].transition->is_disabled()) {
 				continue; //not interested on those
 			}
 
@@ -321,8 +323,11 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 
 			if (!_travel(sm, start_request)) {
 				//can't travel, then teleport
-				path.clear();
-				current = start_request;
+				//path.clear();
+				//current = start_request;
+				start_request = StringName();
+				ERR_EXPLAIN("Can't travel to '" + String(start_request) + ".' No path found.");
+				ERR_FAIL_V(0);
 			}
 		} else {
 			path.clear();
@@ -411,7 +416,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 		for (int i = 0; i < sm->transitions.size(); i++) {
 
 			bool auto_advance = false;
-			if (sm->transitions[i].transition->has_auto_advance()) {
+			if (sm->transitions[i].transition->has_auto_advance() && !sm->transitions[i].transition->is_disabled()) {
 				auto_advance = true;
 			}
 			StringName advance_condition_name = sm->transitions[i].transition->get_advance_condition_name();
