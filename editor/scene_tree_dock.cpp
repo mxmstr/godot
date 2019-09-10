@@ -1245,25 +1245,25 @@ void SceneTreeDock::perform_node_renames(Node *p_base, List<Pair<NodePath, NodeP
 								if (F->get().second == NodePath()) {
 									//will be erased
 
-									int idx = 0;
-									Set<int>::Element *EI = ran.front();
-									ERR_FAIL_COND(!EI); //bug
-									while (EI->get() != i) {
-										idx++;
-										EI = EI->next();
-										ERR_FAIL_COND(!EI); //another bug
-									}
+									// int idx = 0;
+									// Set<int>::Element *EI = ran.front();
+									// ERR_FAIL_COND(!EI); //bug
+									// while (EI->get() != i) {
+									// 	idx++;
+									// 	EI = EI->next();
+									// 	ERR_FAIL_COND(!EI); //another bug
+									// }
 
-									editor_data->get_undo_redo().add_do_method(anim.ptr(), "remove_track", idx);
-									editor_data->get_undo_redo().add_undo_method(anim.ptr(), "add_track", anim->track_get_type(i), idx);
-									editor_data->get_undo_redo().add_undo_method(anim.ptr(), "track_set_path", idx, track_np);
-									editor_data->get_undo_redo().add_undo_method(anim.ptr(), "track_set_interpolation_type", idx, anim->track_get_interpolation_type(i));
-									for (int j = 0; j < anim->track_get_key_count(i); j++) {
+									// editor_data->get_undo_redo().add_do_method(anim.ptr(), "remove_track", idx);
+									// editor_data->get_undo_redo().add_undo_method(anim.ptr(), "add_track", anim->track_get_type(i), idx);
+									// editor_data->get_undo_redo().add_undo_method(anim.ptr(), "track_set_path", idx, track_np);
+									// editor_data->get_undo_redo().add_undo_method(anim.ptr(), "track_set_interpolation_type", idx, anim->track_get_interpolation_type(i));
+									// for (int j = 0; j < anim->track_get_key_count(i); j++) {
 
-										editor_data->get_undo_redo().add_undo_method(anim.ptr(), "track_insert_key", idx, anim->track_get_key_time(i, j), anim->track_get_key_value(i, j), anim->track_get_key_transition(i, j));
-									}
+									// 	editor_data->get_undo_redo().add_undo_method(anim.ptr(), "track_insert_key", idx, anim->track_get_key_time(i, j), anim->track_get_key_value(i, j), anim->track_get_key_transition(i, j));
+									// }
 
-									ran.erase(i); //byebye channel
+									// ran.erase(i); //byebye channel
 
 								} else {
 									//will be renamed
