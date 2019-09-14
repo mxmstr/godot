@@ -160,6 +160,7 @@ env.Depends('#core/license.gen.h', ["../COPYRIGHT.txt", "../LICENSE.txt"])
 env.CommandNoCache('#core/license.gen.h', ["../COPYRIGHT.txt", "../LICENSE.txt"], run_in_subprocess(core_builders.make_license_header))
 
 # Chain load SCsubs
+SConscript('manymouse/SCsub')
 SConscript('os/SCsub')
 SConscript('math/SCsub')
 SConscript('io/SCsub')

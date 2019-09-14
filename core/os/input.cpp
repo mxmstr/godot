@@ -34,6 +34,12 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 
+#include "core/manymouse/manymouse.h"
+// extern "C" {
+// 	#include "core/manymouse/manymouse.h"
+// }
+
+
 Input *Input::singleton = NULL;
 
 Input *Input::get_singleton() {
@@ -52,6 +58,8 @@ Input::MouseMode Input::get_mouse_mode() const {
 }
 
 void Input::_bind_methods() {
+
+	ClassDB::bind_method(D_METHOD("poll_raw"), &Input::poll_raw);
 
 	ClassDB::bind_method(D_METHOD("is_key_pressed", "scancode"), &Input::is_key_pressed);
 	ClassDB::bind_method(D_METHOD("is_mouse_button_pressed", "button"), &Input::is_mouse_button_pressed);
@@ -120,6 +128,31 @@ void Input::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("joy_connection_changed", PropertyInfo(Variant::INT, "device"), PropertyInfo(Variant::BOOL, "connected")));
 }
 
+ManyMouseEvent event;
+
+Array Input::poll_raw() const {
+
+	Array array;
+
+	while (ManyMouse_PollEvent(&event))
+        {
+			Dictionary dict;
+
+			dict["type"] = event.type;
+			dict["device"] = event.device;
+			dict["item"] = event.item;
+			dict["value"] = event.value;
+			dict["minval"] = event.minval;
+			dict["maxval"] = event.maxval;
+			dict["iskeyboard"] = event.iskeyboard;
+
+			array.append(dict);
+        }
+
+	return array;
+
+}
+
 void Input::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 #ifdef TOOLS_ENABLED
 
@@ -145,6 +178,26 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, List<S
 Input::Input() {
 
 	singleton = this;
+	
+	const int available_mice = ManyMouse_Init();
+
+	if (available_mice < 0) {
+		WARN_PRINT("ManyMouse failed to initialize!");
+	}
+	else if (available_mice == 0) {
+		WARN_PRINT("No mice detected!");
+	}
+	else
+	{
+		int i;
+		WARN_PRINT(ManyMouse_DriverName());
+		WARN_PRINTS(itos(available_mice));
+	}
 }
+
+// Input::~Input() {
+
+// 	ManyMouse_Quit();
+// }
 
 //////////////////////////////////////////////////////////

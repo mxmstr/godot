@@ -79,6 +79,8 @@ public:
 
 	static Input *get_singleton();
 
+	Array poll_raw() const;
+
 	virtual bool is_key_pressed(int p_scancode) const = 0;
 	virtual bool is_mouse_button_pressed(int p_button) const = 0;
 	virtual bool is_joy_button_pressed(int p_device, int p_button) const = 0;

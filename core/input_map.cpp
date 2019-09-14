@@ -33,6 +33,7 @@
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 
+
 InputMap *InputMap::singleton = NULL;
 
 int InputMap::ALL_DEVICES = -1;
@@ -338,4 +339,5 @@ InputMap::InputMap() {
 
 	ERR_FAIL_COND(singleton);
 	singleton = this;
+
 }
