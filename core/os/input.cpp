@@ -41,6 +41,7 @@
 
 
 Input *Input::singleton = NULL;
+int Input::available_mice = 0;
 
 Input *Input::get_singleton() {
 
@@ -59,6 +60,7 @@ Input::MouseMode Input::get_mouse_mode() const {
 
 void Input::_bind_methods() {
 
+	ClassDB::bind_method(D_METHOD("get_device_count"), &Input::get_device_count);
 	ClassDB::bind_method(D_METHOD("poll_raw"), &Input::poll_raw);
 
 	ClassDB::bind_method(D_METHOD("is_key_pressed", "scancode"), &Input::is_key_pressed);
@@ -130,6 +132,12 @@ void Input::_bind_methods() {
 
 ManyMouseEvent event;
 
+int Input::get_device_count() const {
+
+	return available_mice;
+
+}
+
 Array Input::poll_raw() const {
 
 	Array array;
@@ -179,7 +187,7 @@ Input::Input() {
 
 	singleton = this;
 	
-	const int available_mice = ManyMouse_Init();
+	available_mice = ManyMouse_Init();
 
 	if (available_mice < 0) {
 		WARN_PRINT("ManyMouse failed to initialize!");

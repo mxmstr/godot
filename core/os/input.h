@@ -41,6 +41,8 @@ class Input : public Object {
 
 	static Input *singleton;
 
+	static int available_mice;
+
 protected:
 	static void _bind_methods();
 
@@ -79,6 +81,7 @@ public:
 
 	static Input *get_singleton();
 
+	int get_device_count() const;
 	Array poll_raw() const;
 
 	virtual bool is_key_pressed(int p_scancode) const = 0;

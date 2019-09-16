@@ -33,6 +33,8 @@
 #include "core/input_map.h"
 #include "core/os/keyboard.h"
 
+#include "platform/windows/key_mapping_windows.h"
+
 const int InputEvent::DEVICE_ID_TOUCH_MOUSE = -1;
 const int InputEvent::DEVICE_ID_INTERNAL = -2;
 
@@ -246,6 +248,11 @@ uint32_t InputEventKey::get_scancode() const {
 	return scancode;
 }
 
+uint32_t InputEventKey::get_vkey() const {
+
+	return KeyMappingWindows::get_keycode(scancode);
+}
+
 void InputEventKey::set_unicode(uint32_t p_unicode) {
 
 	unicode = p_unicode;
@@ -337,6 +344,7 @@ void InputEventKey::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_scancode", "scancode"), &InputEventKey::set_scancode);
 	ClassDB::bind_method(D_METHOD("get_scancode"), &InputEventKey::get_scancode);
+	ClassDB::bind_method(D_METHOD("get_vkey"), &InputEventKey::get_vkey);
 
 	ClassDB::bind_method(D_METHOD("set_unicode", "unicode"), &InputEventKey::set_unicode);
 	ClassDB::bind_method(D_METHOD("get_unicode"), &InputEventKey::get_unicode);

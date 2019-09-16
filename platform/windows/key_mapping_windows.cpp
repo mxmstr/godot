@@ -251,3 +251,15 @@ unsigned int KeyMappingWindows::get_keysym(unsigned int p_code) {
 
 	return KEY_UNKNOWN;
 }
+
+
+unsigned int KeyMappingWindows::get_keycode(unsigned int p_code) {
+
+	for (int i = 0; _vk_to_keycode[i].keysym != KEY_UNKNOWN; i++) {
+
+		if (_vk_to_keycode[i].keysym == p_code)
+			return _vk_to_keycode[i].keycode;
+	}
+
+	return KEY_UNKNOWN;
+}

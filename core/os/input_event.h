@@ -258,6 +258,7 @@ public:
 
 	void set_scancode(uint32_t p_scancode);
 	uint32_t get_scancode() const;
+	uint32_t get_vkey() const;
 
 	void set_unicode(uint32_t p_unicode);
 	uint32_t get_unicode() const;
