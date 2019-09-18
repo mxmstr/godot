@@ -34,6 +34,7 @@
 #include "core/os/keyboard.h"
 
 #include "platform/windows/key_mapping_windows.h"
+#include "platform/windows/mouse_mapping_windows.h"
 
 const int InputEvent::DEVICE_ID_TOUCH_MOUSE = -1;
 const int InputEvent::DEVICE_ID_INTERNAL = -2;
@@ -438,6 +439,11 @@ int InputEventMouseButton::get_button_index() const {
 	return button_index;
 }
 
+uint32_t InputEventMouseButton::get_vbutton() const {
+
+	return MouseMappingWindows::get_buttoncode(button_index);
+}
+
 void InputEventMouseButton::set_pressed(bool p_pressed) {
 
 	pressed = p_pressed;
@@ -542,6 +548,7 @@ void InputEventMouseButton::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_button_index", "button_index"), &InputEventMouseButton::set_button_index);
 	ClassDB::bind_method(D_METHOD("get_button_index"), &InputEventMouseButton::get_button_index);
+	ClassDB::bind_method(D_METHOD("get_vbutton"), &InputEventMouseButton::get_vbutton);
 
 	ClassDB::bind_method(D_METHOD("set_pressed", "pressed"), &InputEventMouseButton::set_pressed);
 	//	ClassDB::bind_method(D_METHOD("is_pressed"), &InputEventMouseButton::is_pressed);

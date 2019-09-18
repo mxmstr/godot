@@ -321,6 +321,7 @@ public:
 
 	void set_button_index(int p_index);
 	int get_button_index() const;
+	uint32_t get_vbutton() const;
 
 	void set_pressed(bool p_pressed);
 	virtual bool is_pressed() const;
