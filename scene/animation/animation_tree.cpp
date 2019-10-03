@@ -442,7 +442,6 @@ void AnimationNode::_bind_methods() {
 	BIND_VMETHOD(MethodInfo(Variant::STRING, "has_filter"));
 
 	ADD_SIGNAL(MethodInfo("removed_from_graph"));
-
 	ADD_SIGNAL(MethodInfo("tree_changed"));
 
 	BIND_ENUM_CONSTANT(FILTER_IGNORE);
@@ -1287,17 +1286,23 @@ void AnimationTree::_process_graph(float p_delta) {
 
 void AnimationTree::advance(float p_time) {
 
+	emit_signal("pre_process");
 	_process_graph(p_time);
+	emit_signal("post_process");
 }
 
 void AnimationTree::_notification(int p_what) {
 
 	if (active && p_what == NOTIFICATION_INTERNAL_PHYSICS_PROCESS && process_mode == ANIMATION_PROCESS_PHYSICS) {
+		emit_signal("pre_process");
 		_process_graph(get_physics_process_delta_time());
+		emit_signal("post_process");
 	}
 
 	if (active && p_what == NOTIFICATION_INTERNAL_PROCESS && process_mode == ANIMATION_PROCESS_IDLE) {
+		emit_signal("pre_process");
 		_process_graph(get_process_delta_time());
+		emit_signal("post_process");
 	}
 
 	if (p_what == NOTIFICATION_EXIT_TREE) {
@@ -1578,6 +1583,9 @@ void AnimationTree::_bind_methods() {
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_PHYSICS);
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_IDLE);
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_MANUAL);
+	
+	ADD_SIGNAL(MethodInfo("pre_process"));
+	ADD_SIGNAL(MethodInfo("post_process"));
 }
 
 AnimationTree::AnimationTree() {

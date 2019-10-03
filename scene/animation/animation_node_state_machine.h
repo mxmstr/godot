@@ -193,6 +193,7 @@ public:
 	int find_transition(const StringName &p_from, const StringName &p_to) const;
 	void add_transition(const StringName &p_from, const StringName &p_to, const Ref<AnimationNodeStateMachineTransition> &p_transition);
 	Ref<AnimationNodeStateMachineTransition> get_transition(int p_transition) const;
+	void set_transition(int p_transition, Ref<AnimationNodeStateMachineTransition> transition) const;
 	StringName get_transition_from(int p_transition) const;
 	StringName get_transition_to(int p_transition) const;
 	int get_transition_count() const;

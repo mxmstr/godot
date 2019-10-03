@@ -334,6 +334,8 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 			current = start_request;
 			playing = true;
 			play_start = true;
+
+			emit_signal("state_starting", String(current));
 		}
 
 		start_request = StringName(); //clear start request
@@ -470,6 +472,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 				path.remove(0);
 			}
 			current = next;
+			emit_signal("state_starting", String(current));
 			if (switch_mode == AnimationNodeStateMachineTransition::SWITCH_MODE_SYNC) {
 				len_current = sm->blend_node(current, sm->states[current].node, 0, true, 0, AnimationNode::FILTER_IGNORE, false);
 				pos_current = MIN(pos_current, len_current);
@@ -502,6 +505,10 @@ void AnimationNodeStateMachinePlayback::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_playing"), &AnimationNodeStateMachinePlayback::is_playing);
 	ClassDB::bind_method(D_METHOD("get_current_node"), &AnimationNodeStateMachinePlayback::get_current_node);
 	ClassDB::bind_method(D_METHOD("get_travel_path"), &AnimationNodeStateMachinePlayback::get_travel_path);
+	ClassDB::bind_method(D_METHOD("get_current_play_pos"), &AnimationNodeStateMachinePlayback::get_current_play_pos);
+
+	ADD_SIGNAL(MethodInfo("state_starting", PropertyInfo(Variant::STRING, "current")));
+	
 }
 
 AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {

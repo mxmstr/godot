@@ -197,9 +197,10 @@ Input::Input() {
 	}
 	else
 	{
-		int i;
 		WARN_PRINT(ManyMouse_DriverName());
-		WARN_PRINTS(itos(available_mice));
+
+		// for (int i = 0; i < available_mice; i++)
+		// 	WARN_PRINTS(itos(i) + ": " + ManyMouse_DeviceName(i, 0));
 	}
 }
 
