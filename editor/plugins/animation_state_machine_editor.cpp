@@ -694,9 +694,6 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
 	Dictionary connections;
 
-	// Vector<Vector<int>> 
-	// tl.from_node
-
 	//draw transition lines
 	for (int i = 0; i < state_machine->get_transition_count(); i++) {
 
@@ -713,7 +710,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
 
 		String connection = (String)tl.from_node + (String)tl.to_node;
-		int count = connections.has(connection) ? 1 : connections[connection];
+		int count = connections.has(connection) ? connections[connection] : 0;
 		connections[connection] = count + 1;
 
 
@@ -746,7 +743,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 			}
 		}
 
-		bool selected = selected_transition_id == tl.id;//selected_transition_from == tl.from_node && selected_transition_to == tl.to_node;
+		bool selected = selected_transition_id == tl.id;
 
 		bool travel = false;
 
