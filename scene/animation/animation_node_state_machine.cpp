@@ -295,6 +295,8 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *sm, c
 
 float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, float p_time, bool p_seek) {
 
+	emit_signal("pre_process");
+
 	//if not playing and it can restart, then restart
 	if (!playing && start_request == StringName()) {
 		if (!stop_request && sm->start_node) {
@@ -311,6 +313,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 	}
 
 	bool play_start = false;
+	bool zero_length = false;
 
 	if (start_request != StringName()) {
 
@@ -350,6 +353,9 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 		}
 
 		len_current = sm->blend_node(current, sm->states[current].node, 0, true, 1.0, AnimationNode::FILTER_IGNORE, false);
+		
+		zero_length = len_current < 0.01;
+		
 		pos_current = 0;
 		loops_current = 0;
 	}
@@ -472,7 +478,9 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 				path.remove(0);
 			}
 			current = next;
+
 			emit_signal("state_starting", String(current));
+
 			if (switch_mode == AnimationNodeStateMachineTransition::SWITCH_MODE_SYNC) {
 				len_current = sm->blend_node(current, sm->states[current].node, 0, true, 0, AnimationNode::FILTER_IGNORE, false);
 				pos_current = MIN(pos_current, len_current);
@@ -482,6 +490,8 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 				len_current = sm->blend_node(current, sm->states[current].node, 0, true, 0, AnimationNode::FILTER_IGNORE, false);
 				pos_current = 0;
 			}
+
+			zero_length = len_current < 0.01;
 
 			rem = len_current; //so it does not show 0 on transition
 			loops_current = 0;
@@ -493,6 +503,10 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 
 		rem = sm->blend_node(sm->end_node, sm->states[sm->end_node].node, 0, true, 0, AnimationNode::FILTER_IGNORE, false);
 	}
+
+
+
+	emit_signal("post_process");
 
 	return rem;
 }
@@ -507,7 +521,10 @@ void AnimationNodeStateMachinePlayback::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_travel_path"), &AnimationNodeStateMachinePlayback::get_travel_path);
 	ClassDB::bind_method(D_METHOD("get_current_play_pos"), &AnimationNodeStateMachinePlayback::get_current_play_pos);
 
+	ADD_SIGNAL(MethodInfo("do_start"));
 	ADD_SIGNAL(MethodInfo("state_starting", PropertyInfo(Variant::STRING, "current")));
+	ADD_SIGNAL(MethodInfo("pre_process"));
+	ADD_SIGNAL(MethodInfo("post_process"));
 	
 }
 
@@ -713,7 +730,7 @@ void AnimationNodeStateMachine::add_transition(const StringName &p_from, const S
 	ERR_FAIL_COND(p_transition.is_null());
 
 	for (int i = 0; i < transitions.size(); i++) {
-		ERR_FAIL_COND(transitions[i].from == p_from && transitions[i].to == p_to);
+		//ERR_FAIL_COND(transitions[i].from == p_from && transitions[i].to == p_to);
 	}
 
 	Transition tr;
@@ -730,6 +747,16 @@ Ref<AnimationNodeStateMachineTransition> AnimationNodeStateMachine::get_transiti
 	ERR_FAIL_INDEX_V(p_transition, transitions.size(), Ref<AnimationNodeStateMachineTransition>());
 	return transitions[p_transition].transition;
 }
+int AnimationNodeStateMachine::get_transition_id(const Ref<AnimationNodeStateMachineTransition> &p_transition) const {
+	
+	for (int i = 0; i < transitions.size(); i++) {
+		if (transitions[i].transition == p_transition)
+			return i;
+	}
+
+	return -1;
+}
+
 StringName AnimationNodeStateMachine::get_transition_from(int p_transition) const {
 
 	ERR_FAIL_INDEX_V(p_transition, transitions.size(), StringName());
@@ -976,6 +1003,7 @@ void AnimationNodeStateMachine::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeStateMachine::get_graph_offset);
 
 	ClassDB::bind_method(D_METHOD("_tree_changed"), &AnimationNodeStateMachine::_tree_changed);
+
 }
 
 AnimationNodeStateMachine::AnimationNodeStateMachine() {

@@ -120,6 +120,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
 	Vector<NodeRect> node_rects;
 
 	struct TransitionLine {
+		int id;
 		StringName from_node;
 		StringName to_node;
 		Vector2 from;
@@ -134,6 +135,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
 
 	Vector<TransitionLine> transition_lines;
 
+	int selected_transition_id;
 	StringName selected_transition_from;
 	StringName selected_transition_to;
 

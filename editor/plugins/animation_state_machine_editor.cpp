@@ -53,6 +53,7 @@ void AnimationNodeStateMachineEditor::edit(const Ref<AnimationNode> &p_node) {
 
 	if (state_machine.is_valid()) {
 
+		selected_transition_id = -1;
 		selected_transition_from = StringName();
 		selected_transition_to = StringName();
 		selected_node = StringName();
@@ -69,7 +70,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
 	Ref<InputEventKey> k = p_event;
 	if (tool_select->is_pressed() && k.is_valid() && k->is_pressed() && k->get_scancode() == KEY_DELETE && !k->is_echo()) {
-		if (selected_node != StringName() || selected_transition_to != StringName() || selected_transition_from != StringName()) {
+		if (selected_node != StringName() || selected_transition_id > -1) {
 			_erase_selected();
 			accept_event();
 		}
@@ -128,6 +129,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 	// select node or push a field inside
 	if (mb.is_valid() && !mb->get_shift() && mb->is_pressed() && tool_select->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
+		selected_transition_id = -1;
 		selected_transition_from = StringName();
 		selected_transition_to = StringName();
 		selected_node = StringName();
@@ -208,6 +210,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 		}
 
 		if (closest >= 0) {
+			selected_transition_id = closest;
 			selected_transition_from = transition_lines[closest].from_node;
 			selected_transition_to = transition_lines[closest].to_node;
 
@@ -261,7 +264,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
 		if (connecting_to_node != StringName()) {
 
-			if (state_machine->has_transition(connecting_from, connecting_to_node)) {
+			if (false) {//state_machine->has_transition(connecting_from, connecting_to_node)) {
 				EditorNode::get_singleton()->show_warning("Transition exists!");
 
 			} else {
@@ -273,12 +276,13 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 				updating = true;
 				undo_redo->create_action(TTR("Add Transition"));
 				undo_redo->add_do_method(state_machine.ptr(), "add_transition", connecting_from, connecting_to_node, tr);
-				undo_redo->add_undo_method(state_machine.ptr(), "remove_transition", connecting_from, connecting_to_node);
+				undo_redo->add_undo_method(state_machine.ptr(), "remove_transition_by_index", state_machine->get_transition_id(tr));
 				undo_redo->add_do_method(this, "_update_graph");
 				undo_redo->add_undo_method(this, "_update_graph");
 				undo_redo->commit_action();
 				updating = false;
 
+				selected_transition_id = state_machine->get_transition_id(tr);
 				selected_transition_from = connecting_from;
 				selected_transition_to = connecting_to_node;
 
@@ -688,10 +692,17 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 	Ref<Texture> tr_reference_icon = get_icon("TransitionImmediateBig", "EditorIcons");
 	float tr_bidi_offset = int(tr_reference_icon->get_height() * 0.8);
 
+	Dictionary connections;
+
+	// Vector<Vector<int>> 
+	// tl.from_node
+
 	//draw transition lines
 	for (int i = 0; i < state_machine->get_transition_count(); i++) {
 
 		TransitionLine tl;
+		tl.id = i;
+
 		tl.from_node = state_machine->get_transition_from(i);
 		Vector2 ofs_from = (dragging_selected && tl.from_node == selected_node) ? drag_ofs : Vector2();
 		tl.from = (state_machine->get_node_position(tl.from_node) * EDSCALE) + ofs_from - state_machine->get_graph_offset() * EDSCALE;
@@ -699,6 +710,12 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 		tl.to_node = state_machine->get_transition_to(i);
 		Vector2 ofs_to = (dragging_selected && tl.to_node == selected_node) ? drag_ofs : Vector2();
 		tl.to = (state_machine->get_node_position(tl.to_node) * EDSCALE) + ofs_to - state_machine->get_graph_offset() * EDSCALE;
+
+
+		String connection = (String)tl.from_node + (String)tl.to_node;
+		int count = connections.has(connection) ? 1 : connections[connection];
+		connections[connection] = count + 1;
+
 
 		Ref<AnimationNodeStateMachineTransition> tr = state_machine->get_transition(i);
 		tl.disabled = tr->is_disabled();
@@ -708,11 +725,17 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 		tl.mode = tr->get_switch_mode();
 		tl.width = tr_bidi_offset;
 
+		Vector2 offset;
+
 		if (state_machine->has_transition(tl.to_node, tl.from_node)) { //offset if same exists
-			Vector2 offset = -(tl.from - tl.to).normalized().tangent() * tr_bidi_offset;
+			offset = -(tl.from - tl.to).normalized().tangent() * tr_bidi_offset * 0.5;
 			tl.from += offset;
 			tl.to += offset;
 		}
+
+		offset = -(tl.from - tl.to).normalized().tangent() * tr_bidi_offset * count * 0.7;
+		tl.from += offset;
+		tl.to += offset;
 
 		for (int j = 0; j < node_rects.size(); j++) {
 			if (node_rects[j].node_name == tl.from_node) {
@@ -723,7 +746,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 			}
 		}
 
-		bool selected = selected_transition_from == tl.from_node && selected_transition_to == tl.to_node;
+		bool selected = selected_transition_id == tl.id;//selected_transition_from == tl.from_node && selected_transition_to == tl.to_node;
 
 		bool travel = false;
 
@@ -1139,17 +1162,18 @@ void AnimationNodeStateMachineEditor::_erase_selected() {
 		selected_node = StringName();
 	}
 
-	if (selected_transition_to != StringName() && selected_transition_from != StringName() && state_machine->has_transition(selected_transition_from, selected_transition_to)) {
+	if (selected_transition_id > -1) {
 
-		Ref<AnimationNodeStateMachineTransition> tr = state_machine->get_transition(state_machine->find_transition(selected_transition_from, selected_transition_to));
+		Ref<AnimationNodeStateMachineTransition> tr = state_machine->get_transition(selected_transition_id);
 		updating = true;
 		undo_redo->create_action(TTR("Transition Removed"));
-		undo_redo->add_do_method(state_machine.ptr(), "remove_transition", selected_transition_from, selected_transition_to);
+		undo_redo->add_do_method(state_machine.ptr(), "remove_transition_by_index", selected_transition_id);
 		undo_redo->add_undo_method(state_machine.ptr(), "add_transition", selected_transition_from, selected_transition_to, tr);
 		undo_redo->add_do_method(this, "_update_graph");
 		undo_redo->add_undo_method(this, "_update_graph");
 		undo_redo->commit_action();
 		updating = false;
+		selected_transition_id = -1;
 		selected_transition_from = StringName();
 		selected_transition_to = StringName();
 	}
@@ -1206,7 +1230,7 @@ void AnimationNodeStateMachineEditor::_update_mode() {
 
 	if (tool_select->is_pressed()) {
 		tool_erase_hb->show();
-		tool_erase->set_disabled(selected_node == StringName() && selected_transition_from == StringName() && selected_transition_to == StringName());
+		tool_erase->set_disabled(selected_node == StringName() && selected_transition_id == -1);
 		tool_autoplay->set_disabled(selected_node == StringName());
 		tool_end->set_disabled(selected_node == StringName());
 	} else {
