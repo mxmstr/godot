@@ -40,6 +40,14 @@ StringName AnimationNodeAnimation::get_animation() const {
 	return animation;
 }
 
+void AnimationNodeAnimation::set_scale(float p_scale) {
+	scale = p_scale;
+}
+
+float AnimationNodeAnimation::get_scale() const {
+	return scale;
+}
+
 void AnimationNodeAnimation::set_clip_start(float p_start) {
 	clip_start = p_start;
 }
@@ -105,10 +113,11 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 
 	float step;
 
-	p_time = MAX(clip_start, p_time);
+	p_time *= scale;
+	//p_time = MAX(clip_start, p_time);
 
 	if (p_seek) {
-		time = p_time;
+		time = MAX(clip_start, p_time);//p_time;
 		step = 0;
 	} else {
 		time = MAX(0, time + p_time);
@@ -118,7 +127,7 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 	float anim_size = anim->get_length();
 
 	if (clip_end > 0)
-		anim_size = clip_end;// -= anim_size - clip_end;
+		anim_size = clip_end;
 
 	if (anim->has_loop()) {
 
@@ -146,6 +155,9 @@ void AnimationNodeAnimation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_animation", "name"), &AnimationNodeAnimation::set_animation);
 	ClassDB::bind_method(D_METHOD("get_animation"), &AnimationNodeAnimation::get_animation);
 
+	ClassDB::bind_method(D_METHOD("set_scale", "scale"), &AnimationNodeAnimation::set_scale);
+	ClassDB::bind_method(D_METHOD("get_scale"), &AnimationNodeAnimation::get_scale);
+
 	ClassDB::bind_method(D_METHOD("set_clip_start", "clip_start"), &AnimationNodeAnimation::set_clip_start);
 	ClassDB::bind_method(D_METHOD("get_clip_start"), &AnimationNodeAnimation::get_clip_start);
 
@@ -153,11 +165,13 @@ void AnimationNodeAnimation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_clip_end"), &AnimationNodeAnimation::get_clip_end);
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "animation"), "set_animation", "get_animation");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "scale"), "set_scale", "get_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "clip_start"), "set_clip_start", "get_clip_start");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "clip_end"), "set_clip_end", "get_clip_end");
 }
 
 AnimationNodeAnimation::AnimationNodeAnimation() {
+	scale = 1.0;
 	clip_start = 0.0;
 	clip_end = 0.0;
 	last_version = 0;

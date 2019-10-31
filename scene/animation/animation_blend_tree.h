@@ -39,6 +39,7 @@ class AnimationNodeAnimation : public AnimationRootNode {
 
 	StringName animation;
 	StringName time;
+	float scale;
 	float clip_start;
 	float clip_end;
 
@@ -60,6 +61,9 @@ public:
 
 	void set_animation(const StringName &p_name);
 	StringName get_animation() const;
+
+	void set_scale(float p_scale);
+	float get_scale() const;
 
 	void set_clip_start(float p_start);
 	void set_clip_end(float p_end);
