@@ -113,15 +113,13 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 
 	float step;
 
-	p_time *= scale;
-	//p_time = MAX(clip_start, p_time);
-
 	if (p_seek) {
 		time = MAX(clip_start, p_time);//p_time;
 		step = 0;
 	} else {
+		p_time *= scale;
 		time = MAX(0, time + p_time);
-		step = p_time;
+		step = p_time * scale;
 	}
 
 	float anim_size = anim->get_length();
