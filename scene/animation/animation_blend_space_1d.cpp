@@ -64,6 +64,7 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_blend_point_node", "point"), &AnimationNodeBlendSpace1D::get_blend_point_node);
 	ClassDB::bind_method(D_METHOD("remove_blend_point", "point"), &AnimationNodeBlendSpace1D::remove_blend_point);
 	ClassDB::bind_method(D_METHOD("get_blend_point_count"), &AnimationNodeBlendSpace1D::get_blend_point_count);
+	ClassDB::bind_method(D_METHOD("get_closest_node_to_position"), &AnimationNodeBlendSpace1D::get_closest_node_to_position);
 
 	ClassDB::bind_method(D_METHOD("set_min_space", "min_space"), &AnimationNodeBlendSpace1D::set_min_space);
 	ClassDB::bind_method(D_METHOD("get_min_space"), &AnimationNodeBlendSpace1D::get_min_space);
@@ -172,6 +173,11 @@ int AnimationNodeBlendSpace1D::get_blend_point_count() const {
 	return blend_points_used;
 }
 
+int AnimationNodeBlendSpace1D::get_closest_node_to_position() const {
+
+	return closest_node;
+}
+
 void AnimationNodeBlendSpace1D::set_min_space(float p_min) {
 	min_space = p_min;
 
@@ -232,6 +238,23 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
 	}
 
 	float blend_pos = get_parameter(blend_position);
+
+
+	int new_closest = -1;
+	float new_closest_dist = 1e20;
+
+	for (int i = 0; i < blend_points_used; i++) {
+
+		float d = Math::abs(blend_pos - blend_points[i].position);
+		if (d < new_closest_dist) {
+
+			new_closest = i;
+			new_closest_dist = d;
+		}
+	}
+
+	closest_node = new_closest;
+
 
 	float weights[MAX_BLEND_POINTS] = {};
 
@@ -324,6 +347,7 @@ AnimationNodeBlendSpace1D::AnimationNodeBlendSpace1D() {
 	value_label = "value";
 
 	blend_position = "blend_position";
+	closest = "closest";
 }
 
 AnimationNodeBlendSpace1D::~AnimationNodeBlendSpace1D() {

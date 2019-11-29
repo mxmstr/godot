@@ -424,7 +424,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 		for (int i = 0; i < sm->transitions.size(); i++) {
 
 			bool auto_advance = false;
-			if (sm->transitions[i].transition->has_auto_advance() && !sm->transitions[i].transition->is_disabled()) {
+			if (sm->transitions[i].transition->has_auto_advance()) {
 				auto_advance = true;
 			}
 			StringName advance_condition_name = sm->transitions[i].transition->get_advance_condition_name();
@@ -432,7 +432,9 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 				auto_advance = true;
 			}
 
-			if (sm->transitions[i].from == current && auto_advance) {
+			if (!sm->transitions[i].transition->is_disabled() && 
+				sm->transitions[i].from == current && 
+				auto_advance) {
 
 				if (sm->transitions[i].transition->get_priority() <= priority_best) {
 					priority_best = sm->transitions[i].transition->get_priority();

@@ -730,7 +730,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 			tl.to += offset;
 		}
 
-		offset = -(tl.from - tl.to).normalized().tangent() * tr_bidi_offset * count;// * 0.7;
+		offset = -(tl.from - tl.to).normalized().tangent() * tr_bidi_offset * count * 0.5;
 		tl.from += offset;
 		tl.to += offset;
 
