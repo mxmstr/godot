@@ -348,6 +348,8 @@ AnimationNodeBlendSpace1D::AnimationNodeBlendSpace1D() {
 
 	blend_position = "blend_position";
 	closest = "closest";
+	
+	closest_node = 0;
 }
 
 AnimationNodeBlendSpace1D::~AnimationNodeBlendSpace1D() {
