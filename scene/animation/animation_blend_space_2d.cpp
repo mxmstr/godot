@@ -144,11 +144,6 @@ int AnimationNodeBlendSpace2D::get_blend_point_count() const {
 	return blend_points_used;
 }
 
-int AnimationNodeBlendSpace2D::get_closest_node_to_position() const {
-
-	return closest_node;
-}
-
 bool AnimationNodeBlendSpace2D::has_triangle(int p_x, int p_y, int p_z) const {
 
 	ERR_FAIL_INDEX_V(p_x, blend_points_used, false);
@@ -346,7 +341,26 @@ void AnimationNodeBlendSpace2D::_update_triangles() {
 	emit_signal("triangles_updated");
 }
 
-Vector2 AnimationNodeBlendSpace2D::get_closest_point(const Vector2 &p_point) {
+int AnimationNodeBlendSpace2D::get_closest_point(const Vector2 &p_point) {
+
+	int best_point = -1;
+	Vector2 best_position;
+	float best_dist = 1e20;
+
+	for (int i = 0; i < blend_points_used; i++) {
+
+		float d = get_blend_point_position(i).distance_to(p_point);
+		if (d < best_dist) {
+
+			best_point = i;
+			best_dist = d;
+		}
+	}
+
+	return best_point;
+}
+
+Vector2 AnimationNodeBlendSpace2D::get_closest_point_position(const Vector2 &p_point) {
 
 	_update_triangles();
 
@@ -552,8 +566,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 			mind = blend_node(blend_points[closest].name, blend_points[closest].node, p_time, p_seek, 1.0, FILTER_IGNORE, false);
 		}
 	}
-
-	closest_node = closest;
+	
 	set_parameter(this->closest, closest);
 	set_parameter(this->length_internal, length_internal);
 	return mind;
@@ -616,7 +629,6 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_blend_point_node", "point"), &AnimationNodeBlendSpace2D::get_blend_point_node);
 	ClassDB::bind_method(D_METHOD("remove_blend_point", "point"), &AnimationNodeBlendSpace2D::remove_blend_point);
 	ClassDB::bind_method(D_METHOD("get_blend_point_count"), &AnimationNodeBlendSpace2D::get_blend_point_count);
-	ClassDB::bind_method(D_METHOD("get_closest_node_to_position"), &AnimationNodeBlendSpace2D::get_closest_node_to_position);
 
 	ClassDB::bind_method(D_METHOD("add_triangle", "x", "y", "z", "at_index"), &AnimationNodeBlendSpace2D::add_triangle, DEFVAL(-1));
 	ClassDB::bind_method(D_METHOD("get_triangle_point", "triangle", "point"), &AnimationNodeBlendSpace2D::get_triangle_point);
@@ -639,6 +651,9 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_y_label"), &AnimationNodeBlendSpace2D::get_y_label);
 
 	ClassDB::bind_method(D_METHOD("_add_blend_point", "index", "node"), &AnimationNodeBlendSpace2D::_add_blend_point);
+
+	ClassDB::bind_method(D_METHOD("get_closest_point"), &AnimationNodeBlendSpace2D::get_closest_point);
+	ClassDB::bind_method(D_METHOD("get_closest_point_position"), &AnimationNodeBlendSpace2D::get_closest_point_position);
 
 	ClassDB::bind_method(D_METHOD("_set_triangles", "triangles"), &AnimationNodeBlendSpace2D::_set_triangles);
 	ClassDB::bind_method(D_METHOD("_get_triangles"), &AnimationNodeBlendSpace2D::_get_triangles);
@@ -691,7 +706,6 @@ AnimationNodeBlendSpace2D::AnimationNodeBlendSpace2D() {
 	closest = "closest";
 	length_internal = "length_internal";
 	blend_mode = BLEND_MODE_INTERPOLATED;
-	closest_node = 0;
 }
 
 AnimationNodeBlendSpace2D::~AnimationNodeBlendSpace2D() {

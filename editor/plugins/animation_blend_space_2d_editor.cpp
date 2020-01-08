@@ -576,7 +576,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
 		point.y = s.height - point.y;
 
 		if (blend_space->get_triangle_count()) {
-			Vector2 closest = blend_space->get_closest_point(blend_pos);
+			Vector2 closest = blend_space->get_closest_point_position(blend_pos);
 			closest = (closest - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
 			closest *= s;
 			closest.y = s.height - closest.y;

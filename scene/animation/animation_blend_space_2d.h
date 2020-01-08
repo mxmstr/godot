@@ -71,7 +71,6 @@ protected:
 	String x_label;
 	String y_label;
 	BlendMode blend_mode;
-	int closest_node;
 
 	void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
 	void _set_triangles(const Vector<int> &p_triangles);
@@ -104,7 +103,6 @@ public:
 	Ref<AnimationRootNode> get_blend_point_node(int p_point) const;
 	void remove_blend_point(int p_point);
 	int get_blend_point_count() const;
-	int get_closest_node_to_position() const;
 
 	bool has_triangle(int p_x, int p_y, int p_z) const;
 	void add_triangle(int p_x, int p_y, int p_z, int p_at_index = -1);
@@ -130,7 +128,8 @@ public:
 	virtual float process(float p_time, bool p_seek);
 	virtual String get_caption() const;
 
-	Vector2 get_closest_point(const Vector2 &p_point);
+	int get_closest_point(const Vector2 &p_point);
+	Vector2 get_closest_point_position(const Vector2 &p_point);
 
 	void set_auto_triangles(bool p_enable);
 	bool get_auto_triangles() const;

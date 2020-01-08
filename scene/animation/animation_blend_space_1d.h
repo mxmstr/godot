@@ -62,7 +62,6 @@ class AnimationNodeBlendSpace1D : public AnimationRootNode {
 
 	StringName blend_position;
 	StringName closest;
-	int closest_node;
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const;
@@ -82,7 +81,6 @@ public:
 	Ref<AnimationRootNode> get_blend_point_node(int p_point) const;
 	void remove_blend_point(int p_point);
 	int get_blend_point_count() const;
-	int get_closest_node_to_position() const;
 
 	void set_min_space(float p_min);
 	float get_min_space() const;
@@ -98,6 +96,8 @@ public:
 
 	float process(float p_time, bool p_seek);
 	String get_caption() const;
+
+	int get_closest_point(float point);
 
 	Ref<AnimationNode> get_child_by_name(const StringName &p_name);
 
