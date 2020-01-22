@@ -178,6 +178,16 @@ float AnimationNodeStateMachinePlayback::get_current_length() const {
 	return len_current;
 }
 
+bool AnimationNodeStateMachinePlayback::_can_travel(AnimationNodeStateMachine *sm, const StringName &p_state) {
+
+	Vector<StringName> temp = path;
+	bool result = _travel(sm, p_state);
+	path = temp;
+
+	return result;
+
+}
+
 bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *sm, const StringName &p_travel) {
 
 	ERR_FAIL_COND_V(!playing, false);
@@ -829,6 +839,15 @@ Vector2 AnimationNodeStateMachine::get_graph_offset() const {
 	return graph_offset;
 }
 
+bool AnimationNodeStateMachine::can_travel(const StringName &p_state) {
+
+	Ref<AnimationNodeStateMachinePlayback> playback = get_parameter(this->playback);
+	ERR_FAIL_COND_V(playback.is_null(), 0.0);
+
+	return playback->_can_travel(this, p_state);
+
+}
+
 float AnimationNodeStateMachine::process(float p_time, bool p_seek) {
 
 	Ref<AnimationNodeStateMachinePlayback> playback = get_parameter(this->playback);
@@ -1003,6 +1022,8 @@ void AnimationNodeStateMachine::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_graph_offset", "offset"), &AnimationNodeStateMachine::set_graph_offset);
 	ClassDB::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeStateMachine::get_graph_offset);
+
+	ClassDB::bind_method(D_METHOD("can_travel", "to_node"), &AnimationNodeStateMachine::can_travel);
 
 	ClassDB::bind_method(D_METHOD("_tree_changed"), &AnimationNodeStateMachine::_tree_changed);
 
