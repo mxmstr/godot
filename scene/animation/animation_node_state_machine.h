@@ -111,7 +111,6 @@ class AnimationNodeStateMachinePlayback : public Resource {
 	bool start_request_travel;
 	bool stop_request;
 
-	bool _can_travel(AnimationNodeStateMachine *p_state_machine, const StringName &p_state);
 	bool _travel(AnimationNodeStateMachine *p_state_machine, const StringName &p_travel);
 
 	float process(AnimationNodeStateMachine *p_state_machine, float p_time, bool p_seek);
@@ -120,6 +119,7 @@ protected:
 	static void _bind_methods();
 
 public:
+	bool _can_travel(AnimationNodeStateMachine *p_state_machine, const StringName &p_state);
 	void travel(const StringName &p_state);
 	void start(const StringName &p_state);
 	void stop();
@@ -212,7 +212,7 @@ public:
 	Vector2 get_graph_offset() const;
 
 	bool can_travel(const StringName &p_state);
-	
+
 	virtual float process(float p_time, bool p_seek);
 	virtual String get_caption() const;
 

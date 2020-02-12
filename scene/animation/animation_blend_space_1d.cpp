@@ -77,6 +77,9 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_value_label", "text"), &AnimationNodeBlendSpace1D::set_value_label);
 	ClassDB::bind_method(D_METHOD("get_value_label"), &AnimationNodeBlendSpace1D::get_value_label);
 
+	ClassDB::bind_method(D_METHOD("set_end_closest_point", "bool"), &AnimationNodeBlendSpace1D::set_end_closest_point);
+	ClassDB::bind_method(D_METHOD("get_end_closest_point"), &AnimationNodeBlendSpace1D::get_end_closest_point);
+
 	ClassDB::bind_method(D_METHOD("_add_blend_point", "index", "node"), &AnimationNodeBlendSpace1D::_add_blend_point);
 
 	ClassDB::bind_method(D_METHOD("get_closest_point"), &AnimationNodeBlendSpace1D::get_closest_point);
@@ -92,6 +95,8 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "max_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "snap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "value_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
+
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "end_at_closest_point"), "set_end_closest_point", "get_end_closest_point");
 }
 
 void AnimationNodeBlendSpace1D::get_child_nodes(List<ChildNode> *r_child_nodes) {
@@ -232,6 +237,14 @@ String AnimationNodeBlendSpace1D::get_value_label() const {
 	return value_label;
 }
 
+void AnimationNodeBlendSpace1D::set_end_closest_point(bool p_end_closest_point) {
+	end_closest_point = p_end_closest_point;
+}
+
+bool AnimationNodeBlendSpace1D::get_end_closest_point() const {
+	return end_closest_point;
+}
+
 void AnimationNodeBlendSpace1D::_add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node) {
 	if (p_index == blend_points_used) {
 		add_blend_point(p_node, 0);
@@ -318,11 +331,15 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
 	// actually blend the animations now
 
 	float max_time_remaining = 0.0;
+	int closest_point = get_closest_point(blend_pos);
 
 	for (int i = 0; i < blend_points_used; i++) {
 		float remaining = blend_node(blend_points[i].name, blend_points[i].node, p_time, p_seek, weights[i], FILTER_IGNORE, false);
-
-		max_time_remaining = MAX(max_time_remaining, remaining);
+		
+		if (end_closest_point)
+			max_time_remaining = i == closest_point ? remaining : max_time_remaining;
+		else
+			max_time_remaining = MAX(max_time_remaining, remaining);
 	}
 
 	return max_time_remaining;
@@ -343,6 +360,8 @@ AnimationNodeBlendSpace1D::AnimationNodeBlendSpace1D() {
 
 	snap = 0.1;
 	value_label = "value";
+
+	end_closest_point = false;
 
 	blend_position = "blend_position";
 	closest = "closest";

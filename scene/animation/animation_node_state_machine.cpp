@@ -525,6 +525,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *sm, 
 
 void AnimationNodeStateMachinePlayback::_bind_methods() {
 
+	//ClassDB::bind_method(D_METHOD("_can_travel", "to_node"), &AnimationNodeStateMachinePlayback::_can_travel);
 	ClassDB::bind_method(D_METHOD("travel", "to_node"), &AnimationNodeStateMachinePlayback::travel);
 	ClassDB::bind_method(D_METHOD("start", "node"), &AnimationNodeStateMachinePlayback::start);
 	ClassDB::bind_method(D_METHOD("stop"), &AnimationNodeStateMachinePlayback::stop);

@@ -56,6 +56,8 @@ class AnimationNodeBlendSpace1D : public AnimationRootNode {
 
 	String value_label;
 
+	bool end_closest_point;
+
 	void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
 
 	void _tree_changed();
@@ -93,6 +95,9 @@ public:
 
 	void set_value_label(const String &p_label);
 	String get_value_label() const;
+
+	void set_end_closest_point(bool p_end_closest_point);
+	bool get_end_closest_point() const;
 
 	float process(float p_time, bool p_seek);
 	String get_caption() const;
