@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -113,6 +113,7 @@ Ref<AnimationRootNode> AnimationNodeBlendSpace2D::get_blend_point_node(int p_poi
 void AnimationNodeBlendSpace2D::remove_blend_point(int p_point) {
 	ERR_FAIL_INDEX(p_point, blend_points_used);
 
+	ERR_FAIL_COND(blend_points[p_point].node.is_null());
 	blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");
 
 	for (int i = 0; i < triangles.size(); i++) {
@@ -453,21 +454,6 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 	float length_internal = get_parameter(this->length_internal);
 	float mind = 0; //time of min distance point
 
-
-	int new_closest = -1;
-	float new_closest_dist = 1e20;
-
-	for (int i = 0; i < blend_points_used; i++) {
-
-		float d = blend_points[i].position.distance_squared_to(blend_pos);
-		if (d < new_closest_dist) {
-
-			new_closest = i;
-			new_closest_dist = d;
-		}
-	}
-
-
 	if (blend_mode == BLEND_MODE_INTERPOLATED) {
 
 		if (triangles.size() == 0)
@@ -549,7 +535,20 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 		}
 	} else {
 
-		if (new_closest != closest) {
+		int new_closest = -1;
+		float new_closest_dist = 1e20;
+
+		for (int i = 0; i < blend_points_used; i++) {
+
+			float d = blend_points[i].position.distance_squared_to(blend_pos);
+			if (d < new_closest_dist) {
+
+				new_closest = i;
+				new_closest_dist = d;
+			}
+		}
+
+		if (new_closest != closest && new_closest != -1) {
 
 			float from = 0;
 			if (blend_mode == BLEND_MODE_DISCRETE_CARRY && closest != -1) {
@@ -566,7 +565,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 			mind = blend_node(blend_points[closest].name, blend_points[closest].node, p_time, p_seek, 1.0, FILTER_IGNORE, false);
 		}
 	}
-	
+
 	set_parameter(this->closest, closest);
 	set_parameter(this->length_internal, length_internal);
 	return mind;

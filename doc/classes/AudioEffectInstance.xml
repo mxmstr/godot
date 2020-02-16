@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="AudioEffectInstance" inherits="Reference" category="Core" version="3.1.2">
+<<<<<<<< HEAD:doc/classes/AudioEffectInstance.xml
+<class name="AudioEffectInstance" inherits="Reference" version="3.2">
+========
+<class name="ResourceSaverPNG" inherits="ResourceFormatSaver" category="Core" version="3.1.2">
+>>>>>>>> 3.2:doc/classes/ResourceSaverPNG.xml
 	<brief_description>
 	</brief_description>
 	<description>

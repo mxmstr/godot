@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -243,10 +243,10 @@ public:
 	void set_emulate_mouse_from_touch(bool p_emulate);
 	virtual bool is_emulating_mouse_from_touch() const;
 
-	virtual CursorShape get_default_cursor_shape();
+	virtual CursorShape get_default_cursor_shape() const;
 	virtual void set_default_cursor_shape(CursorShape p_shape);
+	virtual CursorShape get_current_cursor_shape() const;
 	virtual void set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape = Input::CURSOR_ARROW, const Vector2 &p_hotspot = Vector2());
-	virtual void set_mouse_in_window(bool p_in_window);
 
 	void parse_mapping(String p_mapping);
 	void joy_button(int p_device, int p_button, bool p_pressed);
@@ -273,6 +273,7 @@ public:
 	virtual void flush_accumulated_events();
 	virtual void set_use_accumulated_input(bool p_enable);
 
+	virtual void release_pressed_events();
 	InputDefault();
 };
 

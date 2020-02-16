@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -518,7 +518,7 @@ void GDAPI godot_variant_evaluate(godot_variant_operator p_op, const godot_varia
 	const Variant *a = (const Variant *)p_a;
 	const Variant *b = (const Variant *)p_b;
 	Variant *ret = (Variant *)r_ret;
-	Variant::evaluate(op, a, b, *ret, *r_valid);
+	Variant::evaluate(op, *a, *b, *ret, *r_valid);
 }
 
 #ifdef __cplusplus
