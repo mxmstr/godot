@@ -901,7 +901,7 @@ void AnimationNodeTransition::_bind_methods() {
 
 	for (int i = 0; i < MAX_INPUTS; i++) {
 		ADD_PROPERTYI(PropertyInfo(Variant::STRING, "input_" + itos(i) + "/name"), "set_input_caption", "get_input_caption", i);
-		ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "input_" + itos(i) + "/auto_advance"), "set_input_data", "get_input_data", i);
+		ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "input_" + itos(i) + "/auto_advance"), "set_input_as_auto_advance", "is_input_set_as_auto_advance", i);
 		ADD_PROPERTYI(PropertyInfo(Variant::DICTIONARY, "input_" + itos(i) + "/data"), "set_input_data", "get_input_data", i);
 	}
 }

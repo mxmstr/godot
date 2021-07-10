@@ -126,6 +126,7 @@ public:
 		Ref<AnimationNode> node;
 	};
 
+	Dictionary get_children();
 	virtual void get_child_nodes(List<ChildNode> *r_child_nodes);
 
 	virtual float process(float p_time, bool p_seek);

@@ -61,6 +61,8 @@ void AnimationNode::set_parameter(const StringName &p_name, const Variant &p_val
 	StringName path = state->tree->property_parent_map[base_path][p_name];
 
 	state->tree->property_map[path] = p_value;
+
+	state->tree->emit_signal("parameter_changed", base_path, p_name, p_value);
 }
 
 Variant AnimationNode::get_parameter(const StringName &p_name) const {
@@ -70,6 +72,20 @@ Variant AnimationNode::get_parameter(const StringName &p_name) const {
 
 	StringName path = state->tree->property_parent_map[base_path][p_name];
 	return state->tree->property_map[path];
+}
+
+Dictionary AnimationNode::get_children() {
+
+	Dictionary cd;
+	List<AnimationNode::ChildNode> children;
+	get_child_nodes(&children);
+
+	for (List<AnimationNode::ChildNode>::Element *E = children.front(); E; E = E->next()) {
+		cd[E->get().name] = E->get().node;
+	}
+
+	return cd;
+
 }
 
 void AnimationNode::get_child_nodes(List<ChildNode> *r_child_nodes) {
@@ -403,6 +419,8 @@ Ref<AnimationNode> AnimationNode::get_child_by_name(const StringName &p_name) {
 }
 
 void AnimationNode::_bind_methods() {
+
+	ClassDB::bind_method(D_METHOD("get_children"), &AnimationNode::get_children);
 
 	ClassDB::bind_method(D_METHOD("get_input_count"), &AnimationNode::get_input_count);
 	ClassDB::bind_method(D_METHOD("get_input_name", "input"), &AnimationNode::get_input_name);
@@ -1588,6 +1606,7 @@ void AnimationTree::_bind_methods() {
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_IDLE);
 	BIND_ENUM_CONSTANT(ANIMATION_PROCESS_MANUAL);
 	
+	ADD_SIGNAL(MethodInfo("parameter_changed"));
 	ADD_SIGNAL(MethodInfo("pre_process"));
 	ADD_SIGNAL(MethodInfo("post_process"));
 	ADD_SIGNAL(MethodInfo("pre_call_method_track"));
